@@ -7,8 +7,12 @@ isNew=0
  
 echo " checking: $1"
 
+
+#check for parameters
+
+
 #check if an artist exists
-if [ -d "/media/pi/BE4B-8D55/Music/$1" ] 
+if [ -d "/media/pi/3234-3964/Music/$1" ] 
 then
     echo "This artist already exists" 
     isNew=0
@@ -17,11 +21,11 @@ else
     isNew=1
     
     
-    mkdir /media/pi/BE4B-8D55/Music/$artist
+    mkdir /media/pi/3234-3964/tempbackup/$artist
     
 fi
 
- cd /media/pi/BE4B-8D55/Music/$artist
+ cd /media/pi/3234-3964/tempbackup/$artist
  
  youtube-dl -x -i --write-thumbnail --audio-format mp3  $2
  
@@ -53,7 +57,7 @@ FILES=/media/pi/EMTEC/Music/$artist/*
  
 #done
 
-ls /media/pi/BE4B-8D55/Music/$artist
+ls /media/pi/3234-3964/tempbackup/$artist
 
 echo " ****** Finished Download Successfully ************"
 
