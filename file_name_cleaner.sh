@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-cleanup_path="/media/pi/3234-3964/tempbackup/"
+cleanup_path="/media/pi/3234-3964/Music/"
 cd $cleanup_path
 pwd
 

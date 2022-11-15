@@ -3,7 +3,7 @@ echo "Song Getter 1.3"
 
 source=$1
 isNew=0
-music_path="/media/pi/3234-3964/tempbackup/"
+music_path="/media/pi/3234-3964/Music/"
 
 
 # if [[ -z $1 ]]
@@ -52,31 +52,109 @@ fi
 
 
  cd "$music_path$artist_name_with_spaces"
- pwd
+ pwd 
 
+dir=$(pwd)
+echo $dir
  echo $1
  
  youtube-dl -x -i --write-thumbnail --audio-format mp3  $1
  
-music_files="$music_path$artist_name_with_spaces"*
+music_files="$music_path$artist_name_with_spaces"
+
+shopt -s globstar
+
+echo "Cleaning file names"
+
+for f in ./**
+do
+
+ file_name="${f##*/}"
+
+ echo "filename --> "$file_name
+  
+if [[ $file_name == *"webp"* ]]
+then
+  rm "$f"
 
 
-#for f in $FILES
-#do
-  
-  #file_name="${f##*/}"
+fi
+
+if [[ $file_name == *"webm"* ]]
+then
+  rm "$f"
+
+
+fi
+
+if [[ $file_name == *"mp3"* ]]; then
+  echo "found an mp3!"
+
+   # song_title=$(echo $file_name | cut -d'(' -f 1 )
+
+
+
+  #song_title=$(echo $file_name | rev | cut -c17- | rev)
+
+  song_title=$(echo $file_name |sed 's/(Official video)//' | rev | cut -c16- | rev)
+
+  # song_title= echo $file_name | awk '{ print substr( $0, 1, length($0)-16 ) }' 
+  extension=".mp3"
 
   
-  #song_title=$(echo $file_name | cut -d'(' -f 1 )
-  #extension=".mp3"
+
+  $song_title="${song_title//_}"
+
+  echo "new song title: "$song_title 
+
   
-  #new_name=${song_title%?}$extension
+  new_name=${song_title%?}$extension
   
   
   
-  #new_name=${new_name// /_}
-  #echo "Renaming file to : $new_name"
+  #$new_name=${new_name// /_}
+  echo "Renaming file to : $new_name"
   
-  #mv -- "$f" "$new_name"
+  mv -- "$f" "$new_name"
+
+
+
+
+fi
+
+
+#  echo "file >> $f" 
+
+#   file_name="${f##*/}"
+
+#   filename=$(basename ./**)
+
+#   echo $filename
+#   echo "Filename:  ${filename%.*}"
+  
+#   song_title=$(echo $file_name | cut -d'(' -f 1 )
+#   extension=".mp3"
+  
+#   new_name=${song_title%?}$extension
+  
+  
+  
+#   new_name=${new_name// /_}
+#   echo "Renaming file to : $new_name"
+  
+#   mv -- "$f" "$new_name"
  
-#done
+done
+
+
+ls
+
+echo " ****** Finished Download Successfully ************"
+
+echo " Cleaning up..."
+
+
+cd ..
+pwd
+
+echo $1" - "$artist_name_with_spaces>> links.txt
