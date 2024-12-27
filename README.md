@@ -27,10 +27,10 @@ Note: This app has only been tested on a Raspberry Pi 4.
 
  - Update the `song_getter4.sh` Shell file with this path as well.
 
-```bash
+ ```bash
 
-# Music base directory
-music_base="/media/pi/<SOME-DRIVE>/Music-Library"
+  # Music base directory
+  music_base="/media/pi/<SOME-DRIVE>/Music-Library"
 
 ```
 
