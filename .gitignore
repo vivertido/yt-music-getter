@@ -7,3 +7,5 @@ clean_up.py
 file_name_cleaner.sh
 song_getter.sh.swp
 playlists.txt
+past.txt
+/database
