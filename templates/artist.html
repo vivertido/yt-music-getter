@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <title>{{ artist_name }}'s Music</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>{{ artist_name }}</h1>
+
+        <!-- Back Button -->
+        <a href="{{ url_for('music') }}" class="btn btn-secondary mb-3">Back to Artists</a>
+
+        <!-- Current Folder Path -->
+        {% if subfolder %}
+            <p><strong>Current Folder:</strong> {{ subfolder }}</p>
+        {% endif %}
+
+        <!-- Subfolders -->
+        {% if subfolders %}
+            <h3>Subfolders</h3>
+            <div class="mb-4">
+                {% for folder in subfolders %}
+                    <a href="{{ url_for('artist', artist_name=artist_name, subfolder=folder) }}" class="btn btn-outline-primary me-2 mb-2">
+                        {{ folder }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Songs -->
+        {% if songs %}
+            <h3>Songs</h3>
+            <ul class="list-group">
+                {% for song in songs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ song }}
+                        <audio controls>
+                            <source src="{{ url_for('stream', artist_name=artist_name, song_path=subfolder + '/' + song if subfolder else song) }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No songs available in this folder.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

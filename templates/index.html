@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOME</title>
+    <style>
+        #message{
+
+            display:none;
+        }
+    </style> 
+</head>
+<body class="text-center">
+
+    <main>
+        <header>
+            
+        </header>
+        <div class="container-md mt-3">
+
+        </div>
+        <div class="container-md mt-3">
+            <h2><a href="/music">Explore music</a></h2>
+            <h2>Go to <a href="/player">Player</a></h2>
+        
+            <div id="form-container" class="container w-100">
+            <h1 class="h3 mb-3 fw-normal"> Get Music </h1>
+            <form id="playlist-form" action="get_music" method="POST">
+                <input type="text" class="form-control mb-3" placeholder="Paste Artist Name" name="artist">
+                <input type="text" class="form-control" placeholder="Paste YT link" name="yt-link"> 
+                <p></p>
+                <button class="btn btn-primary submit-btn update-activity-btn" type="submit" onclick="waitForDownload()">Get Music</button>
+            </form>
+
+            </div>
+
+            <div id="message">
+
+
+            <h2>Downloading...</h2>
+            <p>Do not refresh your browser.</p>
+
+            </div>          
+
+
+        </div>
+    </main>
+    
+    <script>
+
+ 
+        function waitForDownload(){
+
+            console.log("Downloading....")
+
+            let container = document.querySelector("#form-container")
+
+            container.style.display = "none"
+
+            let messageContainer = document.querySelector("#message")
+            messageContainer.style.display = "block"
+        }
+
+
+    </script>
+</body>
+</html>

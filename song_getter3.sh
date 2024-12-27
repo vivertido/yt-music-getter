@@ -3,8 +3,8 @@ echo "Song Getter 1.3"
 
 source=$1
 isNew=0
-music_path="/media/pi/3234-3964/Music/"
-
+music_path="/media/pi/SAMSUNG-USB/Music/"
+temp_path="/media/pi/SAMSUNG-USB/Temp"
 
 # if [[ -z $1 ]]
 # then
@@ -51,15 +51,18 @@ fi
  
 
 
- cd "$music_path$artist_name_with_spaces"
+ #cd "$music_path$artist_name_with_spaces"
  pwd 
+
+#change to temp folder:
+cd "$temp_path"
 
 dir=$(pwd)
 echo $dir
  echo $1
  
- youtube-dl -x -i --write-thumbnail --audio-format mp3  $1
- 
+ #youtube-dl -x -i --yes-playlist --verbose --audio-format mp3  $1
+ yt-dlp -x -i --yes-playlist --verbose --audio-format mp3  $1
 music_files="$music_path$artist_name_with_spaces"
 
 shopt -s globstar
@@ -114,8 +117,9 @@ if [[ $file_name == *"mp3"* ]]; then
   
   #$new_name=${new_name// /_}
   echo "Renaming file to : $new_name"
-  
-  mv -- "$f" "$new_name"
+  echo "to location: $music_path$artist_name_with_spaces/$new_name"
+  pwd
+  mv -- "$f" "$music_path$artist_name_with_spaces/$new_name"
 
 
 
@@ -154,7 +158,3 @@ echo " ****** Finished Download Successfully ************"
 echo " Cleaning up..."
 
 
-cd ..
-pwd
-
-echo $1" - "$artist_name_with_spaces>> links.txt

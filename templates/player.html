@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Music Player</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        #now-playing-artist {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+        }
+
+        #now-playing-track {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+
+        }
+
+        .controls {
+
+            font-size: 50px;
+            background-color: #a5a5a5;
+        }
+
+        #queue {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .album-art {
+            width: 300px;
+            height: 300px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+        label{
+            display:inline;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100px;
+        }
+
+        #playerArea {
+
+            background-color: #f1f1f1;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            border-style: solid;
+            border-radius: 11px;
+            border-color: #f1f1f1;
+        }
+        .start-player{
+            background:#ff0066;
+            border-color:#f1f1f1;
+            width:230px;
+            margin:auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">Music Player</h1>
+
+        <!-- Play Mode Selection -->
+        <div class="mb-3">
+            
+            <form id="player-form">
+                <label for="play-mode">Select Play Mode</label>
+                <select id="play-mode" class="form-select mb-3">
+                    <option value="all">Play All Tracks</option>
+                    <option value="artist">Play Tracks by Artist</option>
+                    <option value="album">Play Tracks from an Album</option>
+                </select>
+
+                <div id="artist-selection" style="display: none;">
+                    <label for="artist" class="form-label">Select Artist:</label>
+                    <select id="artist" class="form-select mb-3">
+                        {% for artist in artists %}
+                        <option value="{{ artist }}">{{ artist }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="album-selection" style="display: none;">
+                    <label for="album" class="form-label">Select Album:</label>
+                    <select id="album" class="form-select">
+                        <!-- This will be dynamically populated -->
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-primary start-player" onclick="startPlayer()">Start Playing</button>
+            </form>
+        </div>
+        <div id="playerArea">
+            <!-- Now Playing Section -->
+            <div class="text-center">
+                <img id="album-art" src="https://via.placeholder.com/300" class="album-art" alt="Album Art">
+                <div id="now-playing-artist">Artist: None</div>
+                <div id="now-playing-track">Track: None</div>
+                <progress id="song-progress" value="0" max="1" style="width: 80%;"></progress>
+            </div>
+
+            <!-- Playback Controls -->
+            <div class="d-flex justify-content-center mt-3">
+                <span class="fa-solid fa-user"></span>
+                <button class="btn btn-secondary me-2 controls" onclick="previousTrack()">⏮</button>
+                <button id="playBtn" class="btn btn-primary me-2 controls" onclick="togglePlay()">▶️</button>
+                <button class="btn btn-secondary controls" onclick="nextTrack()">⏭</button>
+            </div>
+        </div>
+        <!-- Visualization -->
+        <div id="visualizer-container" class="mt-3">
+            <canvas id="visualizer" width="300" height="80"></canvas>
+        </div>
+
+        <!-- Queue Section -->
+        <h3 class="mt-4">Queue</h3>
+        <ul id="queue" class="list-group"></ul>
+    </div>
+
+    <audio id="audio-player" ontimeupdate="updateProgressBar()" onended="nextTrack()"></audio>
+
+    <script>
+        let togglePlayBtn = document.getElementById("playBtn");
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Handle play mode changes
+            const playModeDropdown = document.getElementById("play-mode");
+            const artistSelection = document.getElementById("artist-selection");
+            const albumSelection = document.getElementById("album-selection");
+
+            playModeDropdown.addEventListener("change", function () {
+                const playMode = this.value;
+                artistSelection.style.display = playMode === "artist" || playMode === "album" ? "block" : "none";
+                albumSelection.style.display = playMode === "album" ? "block" : "none";
+            });
+
+            // Populate albums when artist changes
+            const artistDropdown = document.getElementById("artist");
+            artistDropdown?.addEventListener("change", function () {
+                const artist = this.value;
+                fetch(`/get_albums?artist=${artist}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const albumDropdown = document.getElementById("album");
+                        albumDropdown.innerHTML = data.albums.map(album => `<option value="${album}">${album}</option>`).join("");
+                    });
+            });
+        });
+
+        // Queue and playback logic
+        let queue = [];
+        let currentIndex = 0;
+
+        function startPlayer() {
+            console.log("Starting player...")
+            const playMode = document.getElementById("play-mode").value;
+            const artist = document.getElementById("artist")?.value || "";
+            const album = document.getElementById("album")?.value || "";
+            togglePlayBtn.textContent = "⏸"
+            fetch(`/get_tracks?mode=${playMode}&artist=${artist}&album=${album}`)
+                .then(response => response.json())
+                .then(data => {
+                    queue = data.queue;
+                    currentIndex = 0;
+                    updateQueue();
+                    loadTrack();
+                });
+        }
+
+        function fetchAlbumArt(trackName) {
+            fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(trackName)}&entity=album&limit=1`)
+                .then(response => response.json())
+                .then(data => {
+                    const albumArtUrl = data.results?.[0]?.artworkUrl100 || "https://via.placeholder.com/100";
+                    document.getElementById("album-art").src = albumArtUrl;
+                })
+                .catch(error => {
+                    console.error("Error fetching album art:", error);
+                    document.getElementById("album-art").src = "https://via.placeholder.com/100";
+                });
+        }
+
+        function updateQueue() {
+            const queueElement = document.getElementById("queue");
+            queueElement.innerHTML = queue
+                .map((track, index) => `<li class="list-group-item ${index === currentIndex ? 'active' : ''}">${track.replace("/stream/", "").replace("[", "").replace(".mp3", "")}</li>`)
+                .join("");
+        }
+
+
+
+        function loadTrack() {
+            if (queue.length > 0) {
+                const currentTrack = queue[currentIndex];
+                console.log("current track :" + currentTrack)
+                const formattedTrack = currentTrack.replace("/stream/", "").replace(".mp3", "").replace("[", "").replace("(Official Video)","");
+                const artistName = extractArtistName(currentTrack); // Ensure this function extracts artist name
+                console.log("Aritst : " + artistName)
+                const displayArtistName = formattedTrack.split("/")[0];
+                const displayTrackName = formattedTrack.split("/")[1];
+                console.log(displayArtistName + " - " + displayTrackName);
+
+                const audioPlayer = document.getElementById("audio-player");
+                document.getElementById("now-playing-artist").textContent = ` ${displayArtistName}`;
+                document.getElementById("now-playing-track").textContent = ` ${displayTrackName}`;
+
+                audioPlayer.src = currentTrack;
+                updateQueue();
+
+                // Fetch and display artist image
+                fetch(`/artist_image/${encodeURIComponent(displayArtistName)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("album-art").src = data.image_url;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching artist image:", error);
+                    });
+
+                audioPlayer.play();
+            }
+        }
+
+        // Helper function to extract artist name from track name
+        function extractArtistName(trackName) {
+            // Example: /stream/Artist - Song.mp3 -> Artist
+            const parts = trackName.split("/");
+            const filename = parts[parts.length - 1]; // Get the last part of the path
+            const artist = filename.split(" - ")[0]; // Assumes "Artist - Song.mp3" format
+            return artist.replace(".mp3", "").trim();
+        }
+
+
+
+        function updateProgressBar() {
+            const audioPlayer = document.getElementById("audio-player");
+            const progressBar = document.getElementById("song-progress");
+
+            // Ensure currentTime and duration are valid
+            if (!isNaN(audioPlayer.currentTime) && !isNaN(audioPlayer.duration) && audioPlayer.duration > 0) {
+                progressBar.value = audioPlayer.currentTime / audioPlayer.duration;
+            } else {
+                progressBar.value = 0; // Reset progress bar if values are invalid
+            }
+        }
+
+        function togglePlay() {
+            const audioPlayer = document.getElementById("audio-player");
+            let togglePlayBtn = document.getElementById("playBtn");
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                togglePlayBtn.textContent = "⏸";
+            } else {
+                audioPlayer.pause();
+                togglePlayBtn.textContent = "▶️";
+            }
+        }
+
+        function nextTrack() {
+            currentIndex = (currentIndex + 1) % queue.length;
+            loadTrack();
+        }
+
+        function previousTrack() {
+            currentIndex = (currentIndex - 1 + queue.length) % queue.length;
+            loadTrack();
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const audioPlayer = document.getElementById("audio-player");
+            const canvas = document.getElementById("visualizer");
+            const canvasCtx = canvas.getContext("2d");
+
+            let audioContext;
+            let analyser;
+            let dataArray;
+
+            // Initialize the audio context and analyser
+            function setupVisualizer() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const source = audioContext.createMediaElementSource(audioPlayer);
+
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256; // Number of data points for visualization
+
+                    const bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+
+                    source.connect(analyser);
+                    analyser.connect(audioContext.destination);
+                }
+            }
+
+            // Draw the sound levels
+            function draw() {
+                requestAnimationFrame(draw);
+
+                analyser.getByteFrequencyData(dataArray);
+
+                canvasCtx.fillStyle = "#f8f9fa"; // Background color
+                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const barWidth = (canvas.width / dataArray.length) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < dataArray.length; i++) {
+                    barHeight = dataArray[i] / 2;
+
+                    canvasCtx.fillStyle = `rgb(${barHeight + 100}, 0, 102)`; // Bar color
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    x += barWidth + 1;
+                }
+            }
+
+            // Start the visualizer when a track is played
+            audioPlayer.addEventListener("play", function () {
+                setupVisualizer();
+                draw();
+            });
+        });
+
+    </script>
+</body>
+
+</html>
