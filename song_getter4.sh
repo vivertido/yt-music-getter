@@ -5,7 +5,7 @@ link=$1
 artist=$2
 
 # Music base directory
-music_base="/media/pi/9C33-6BBD/Music-Library"
+music_base="/media/pi/9C33-6BBD1/Music-Library"
 
 # Create artist directory if it doesn't exist
 artist_dir="${music_base}/${artist}"

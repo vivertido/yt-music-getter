@@ -4,12 +4,12 @@ import subprocess
 from datetime import datetime
 import os
 import random
-import requests
+import requests 
 
 
 app = Flask(__name__)
 
-albums_path = '/media/pi/9C33-6BBD/Music-Library'
+albums_path = '/media/pi/9C33-6BBD1/Music-Library'
 
 def fetch_artist_image(artist_name):
     """Fetch artist image from Deezer API."""
