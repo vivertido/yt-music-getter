@@ -1,0 +1,4 @@
+Flask
+redis
+yt-dlp
+sqlite3
