@@ -8,10 +8,10 @@ file_name_cleaner.sh
 song_getter.sh.swp
 playlists.txt
 past.txt
-/database
 .env
 *.swp
 # Ignore Python bytecode files
 *.pyc
 *.pyo
 __pycache__/
+music.db
