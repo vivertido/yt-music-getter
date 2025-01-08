@@ -9,3 +9,5 @@ song_getter.sh.swp
 playlists.txt
 past.txt
 /database
+.env
+*.swp
