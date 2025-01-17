@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS artists (
     name TEXT NOT NULL UNIQUE,          -- Artist name
     bio TEXT,                           -- Short biography or description
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- When the artist was added
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Last time artist details were updated
-    image_url TEXT,   -- URL to artist image
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Last time artist details were updated
+    image_url TEXT   -- URL to artist image
 );
 
 CREATE TABLE IF NOT EXISTS albums (
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL DEFAULT 'user',       -- Role (e.g., 'user', 'admin')
     password_hash TEXT,                      -- Hashed password for authentication
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- When the user was created
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Last updated
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Last updated
 );
 
 CREATE TABLE playlists_new (
@@ -47,7 +47,7 @@ CREATE TABLE playlists_new (
     play_count INTEGER DEFAULT 0,
     last_played TIMESTAMP,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER NOT NULL, 
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS playlist_tracks (
     track_id INTEGER NOT NULL,                -- Foreign key to the tracks table
     position INTEGER NOT NULL DEFAULT 1,      -- Position of the track in the playlist
     added_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- When the track was added to the playlist
-    updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Last updated
+    updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Last updated
     FOREIGN KEY (playlist_id) REFERENCES playlists (id) ON DELETE CASCADE,
     FOREIGN KEY (track_id) REFERENCES tracks (id) ON DELETE CASCADE,
     UNIQUE (playlist_id, track_id)            -- Ensure unique track-playlist pairs
